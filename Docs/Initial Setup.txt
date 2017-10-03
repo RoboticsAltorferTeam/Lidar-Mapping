@@ -53,4 +53,4 @@ source /home/administrator/catkin_ws/devel/setup.bash
 sudo reboot
 
 rostopic list
-if it shows velodyne topics, you are good to go.
+if it shows velodyne topics, you are good to go...
