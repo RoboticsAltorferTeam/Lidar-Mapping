@@ -1,0 +1,56 @@
+mkdir catkin_ws
+cd catkin_ws
+wstool init src
+catkin_init_workspace src
+catkin_make
+
+cd src
+wstool set velodyne --git https://github.com/ros-drivers/velodyne
+
+Put (y) and press return key
+
+wstool update velodyne
+
+cd ..
+catkin_make
+
+If catkin_make failed with errors, check error and usually it's due to dependencies... Install them and compile it again...
+
+Usually need to install these
+#Dependencies
+#Missing "Pcl" package
+sudo apt-get install ros-indigo-pcl-ros
+#Missing "pcap.h" headler file
+sudo apt-get install libpcap0.8-dev
+
+catkin_make
+
+source ~/catkin_ws/devel/setup.bash
+roslaunch velodyne_pointcloud VLP16_points.launch
+
+roscd velodyne_pointcloud/
+cd launch
+sudo nano VLP16_points.launch
+
+add following line to properly link VLP16 to the robot at the end of launch file just before </launch> line.
+
+<node pkg="tf" type="static_transform_publisher" name="velodyne_broadcaster" args="0 0 0.145 0 0 0 mid_mount velodyne 10"/>
+
+To add velodyne launch file to automatically launch at robot startup.
+
+cd
+roscd velodyne_pointcloud/
+cd launch
+sudo cp VLP16_points.launch /etc/ros/indigo/ros.d
+
+cd
+
+sudo nano /etc/ros/setup.bash
+
+comment source and add new source path
+source /home/administrator/catkin_ws/devel/setup.bash
+
+sudo reboot
+
+rostopic list
+if it shows velodyne topics, you are good to go.
