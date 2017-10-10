@@ -1,4 +1,6 @@
+#To avoid uploading huge amount of data.
 *.asv
 *.mat
 *.bag
 *.ply
+*.pcap
