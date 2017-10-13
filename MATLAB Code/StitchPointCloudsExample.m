@@ -15,7 +15,7 @@
 % dataFile = fullfile(toolboxdir('vision'), 'visiondata', 'livingRoom.mat');
 % load(dataFile);
 livingRoomData = pcObj;
-% livingRoomData = pcObj(1057:1400);
+% livingRoomData = pcObj(303:352);
 % Extract two consecutive point clouds and use the first point cloud as
 % reference.
 ptCloudRef = livingRoomData{1};
@@ -54,6 +54,7 @@ moving = pcdownsample(ptCloudCurrent, 'gridAverage', gridSize);
 %%
 tform = pcregrigid(moving, fixed, 'Metric','pointToPlane','Extrapolate', true);
 ptCloudAligned = pctransform(ptCloudCurrent,tform);
+ptCloudAligned.Intensity = ptCloudCurrent.Intensity;
 
 %%
 % We can now create the world scene with the registered data. The
@@ -135,7 +136,7 @@ for i = 3:length(livingRoomData)
     hScatter.XData = ptCloudScene.Location(:,1);
     hScatter.YData = ptCloudScene.Location(:,2);
     hScatter.ZData = ptCloudScene.Location(:,3);
-    hScatter.CData = ptCloudScene.Intensity;
+%     hScatter.CData = ptCloudScene.Color;
     drawnow('limitrate')
 end
 
