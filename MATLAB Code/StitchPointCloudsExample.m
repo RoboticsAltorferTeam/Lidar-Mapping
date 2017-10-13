@@ -15,6 +15,7 @@
 % dataFile = fullfile(toolboxdir('vision'), 'visiondata', 'livingRoom.mat');
 % load(dataFile);
 livingRoomData = pcObj;
+% livingRoomData = pcObj(1057:1400);
 % Extract two consecutive point clouds and use the first point cloud as
 % reference.
 ptCloudRef = livingRoomData{1};
@@ -103,6 +104,11 @@ hAxes.CameraViewAngleMode = 'auto';
 hScatter = hAxes.Children;
 
 for i = 3:length(livingRoomData)
+% for i = 365:300
+    i
+%     if(i == 117 || i == 120 || i== 204)
+%         continue
+%     end
     ptCloudCurrent = livingRoomData{i};
        
     % Use previous moving point cloud as reference.
@@ -115,7 +121,12 @@ for i = 3:length(livingRoomData)
     % Transform the current point cloud to the reference coordinate system
     % defined by the first point cloud.
     accumTform = affine3d(tform.T * accumTform.T);
-    ptCloudAligned = pctransform(ptCloudCurrent, accumTform);
+    try
+        ptCloudAligned = pctransform(ptCloudCurrent, accumTform);
+    catch
+        disp('Transform ERROR!ERROR!ERROR!');
+        continue
+    end
     
     % Update the world scene.
     ptCloudScene = pcmerge(ptCloudScene, ptCloudAligned, mergeSize);
