@@ -15,6 +15,7 @@
 % dataFile = fullfile(toolboxdir('vision'), 'visiondata', 'livingRoom.mat');
 % load(dataFile);
 livingRoomData = pcObj;
+% livingRoomData = pcGround;
 % livingRoomData = pcObj(303:352);
 % Extract two consecutive point clouds and use the first point cloud as
 % reference.
@@ -34,6 +35,8 @@ ptCloudCurrent = livingRoomData{2};
 gridSize = 0.1;
 fixed = pcdownsample(ptCloudRef, 'gridAverage', gridSize);
 moving = pcdownsample(ptCloudCurrent, 'gridAverage', gridSize);
+% fixed = ptCloudRef;
+% moving = ptCloudCurrent;
 
 % Note that the downsampling step does not only speed up the registration,
 % but can also improve the accuracy.
@@ -115,6 +118,7 @@ for i = 3:length(livingRoomData)
     % Use previous moving point cloud as reference.
     fixed = moving;
     moving = pcdownsample(ptCloudCurrent, 'gridAverage', gridSize);
+%     moving = ptCloudCurrent;
     
     % Apply ICP registration.
     tform = pcregrigid(moving, fixed, 'Metric','pointToPlane','Extrapolate', true);

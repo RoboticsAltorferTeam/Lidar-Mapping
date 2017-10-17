@@ -35,5 +35,11 @@ else
     %     pcOut = pcmerge(pcObj{i}, pcObj{i-1}, 0.0001);
     %     pcOld = pcOut;
     end
-    % pcshow(pcOut)
+%     Select only the first ring of Lidar Data
+%     for i = 1:pcLen
+%         i
+%         ring0 = categorical(lidarData{i}.readField('ring'));
+%         ringIndices = find(ismember(ring0,{'0'}));
+%         pcObj{i} = select(pcObj{i},ringIndices);
+%     end
 end

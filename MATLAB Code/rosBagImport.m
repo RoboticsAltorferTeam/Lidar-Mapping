@@ -1,6 +1,6 @@
 clear
 
-bagFilename = 'velo_1310_1.bag';
+bagFilename = 'velo_1710_1.bag';
 if(~exist(bagFilename,'file'))
     if(~exist('rosDevice1','var'))
         rosDevice = rosdevice('10.10.10.101','administrator','clearpath');
@@ -12,21 +12,24 @@ if(~exist(bagFilename,'file'))
     disp('File Received');
 end
 
-veloBag = rosbag(bagFilename);
+rosBagAll = rosbag(bagFilename);
 disp('File Imported');
+veloBag = select(rosBagAll,'Topic','/velodyne_points_2Hz');
+odomBag = select(rosBagAll,'Topic','odom_2Hz');
 
+odomData = readMessages(odomBag);
 topicsTable = veloBag.AvailableTopics;
 numMessages = topicsTable{1,1};
 if(numMessages <= 200)
-    lidarData2 = readMessages(veloBag);
+    lidarData = readMessages(veloBag);
     disp('Data Extracted');
-    lidarData = repmat(readMessages(veloBag,1),numMessages,1);
-    for i = 1:ceil(numMessages/200)
-        fromVal = (((i-1)*200) + 1);
-        toVal = i*200;
-        if(toVal > numMessages)
-            toVal = numMessages;
-        end
-        lidarData(fromVal:toVal) = readMessages(veloBag,fromVal:toVal);
-    end
+%     lidarData = repmat(readMessages(veloBag,1),numMessages,1);
+%     for i = 1:ceil(numMessages/200)
+%         fromVal = (((i-1)*200) + 1);
+%         toVal = i*200;
+%         if(toVal > numMessages)
+%             toVal = numMessages;
+%         end
+%         lidarData(fromVal:toVal) = readMessages(veloBag,fromVal:toVal);
+%     end
 end
