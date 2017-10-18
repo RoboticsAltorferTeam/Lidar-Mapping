@@ -1,6 +1,6 @@
 clear
 
-bagFilename = 'velo_1710_1.bag';
+bagFilename = 'velo_1710_5.6.bag';
 if(~exist(bagFilename,'file'))
     if(~exist('rosDevice1','var'))
         rosDevice = rosdevice('10.10.10.101','administrator','clearpath');
@@ -14,8 +14,10 @@ end
 
 rosBagAll = rosbag(bagFilename);
 disp('File Imported');
-veloBag = select(rosBagAll,'Topic','/velodyne_points_2Hz');
-odomBag = select(rosBagAll,'Topic','odom_2Hz');
+% veloBag = select(rosBagAll,'Topic','/velodyne_points_2Hz');
+% odomBag = select(rosBagAll,'Topic','odom_2Hz');
+veloBag = select(rosBagAll,'Topic','/velodyne_points');
+odomBag = select(rosBagAll,'Topic','/odometry/filtered');
 
 odomData = readMessages(odomBag);
 topicsTable = veloBag.AvailableTopics;
