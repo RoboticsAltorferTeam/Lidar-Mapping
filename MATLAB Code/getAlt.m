@@ -2,17 +2,21 @@
 [len1,~] = size(lidarData);
 [len2,~] = size(odomData);
 
-odomIndex = 1 : ((len2 - 1)/len1): len2;
-odomIndex = floor(odomIndex);
-[~,len2] = size(odomIndex);
-odomData = odomData(odomIndex);
-len = min([len1,len2]);
+if(len2 ~= len1)
+    odomIndex = 1 : ((len2 - 1)/len1): len2;
+    odomIndex = floor(odomIndex);
+    [~,len2] = size(odomIndex);
+    odomData = odomData(odomIndex);
+    len = min([len1,len2]);
+else
+    len = len1;
+end
 
 initPos = [odomData{1}.Pose.Pose.Position.X,...
     odomData{1}.Pose.Pose.Position.Y,...
     odomData{1}.Pose.Pose.Position.Z];
 pcGround = cell(1,len);
-for i = 1:len
+for i = 1:len-1:len
 %     pcCount = pcObj{i}.Count;
     i
 %     locationNew = [0];
@@ -36,6 +40,15 @@ for i = 1:len
         odomData{i}.Pose.Pose.Position.Z];
     locationData = readXYZ(lidarData{i});
 %     locationData = locationData(ringIndices,:);
+
+    quat1 = [odomData{i}.Pose.Pose.Orientation.W,...
+        odomData{i}.Pose.Pose.Orientation.X,...
+        odomData{i}.Pose.Pose.Orientation.Y,...
+        odomData{i}.Pose.Pose.Orientation.Z];
+    rotm1 = quat2rotm(quat1);
+%     locationData = locationData * rotm1;
+    curPos = curPos * rotm1;
+
     locationDataPos = locationData + curPos;
 %     pcGround{i} = select(pcObj{i},ringIndices);
 
@@ -45,12 +58,12 @@ for i = 1:len
     pcGround{i} = pointCloud(locationDataPos, 'Intensity', intensityData);
     
     if(i == 2)
-        pcOut = pcmerge(pcGround{1}, pcGround{2}, 0.00001);
+%         pcOut = pcmerge(pcGround{1}, pcGround{2}, 0.00001);
 %         locationAll = [locationAll;locationDataPos];
     elseif(i == 1)
         locationAll = locationDataPos;
     elseif(i > 2)
-        pcOut = pcmerge(pcOut, pcGround{i}, 0.00001);
+%         pcOut = pcmerge(pcOut, pcGround{i}, 0.00001);
         if(i == len)
             locationAll = [locationAll;locationDataPos];
         end

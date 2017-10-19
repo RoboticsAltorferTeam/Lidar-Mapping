@@ -1,13 +1,13 @@
 clear
 
-bagFilename = 'velo_1710_5.6.bag';
+bagFilename = 'velo.b_1910_1.bag';
 if(~exist(bagFilename,'file'))
     if(~exist('rosDevice1','var'))
-        rosDevice = rosdevice('10.10.10.101','administrator','clearpath');
-%         rosDevice1 = rosdevice('192.168.43.79','administrator','clearpath');
+%         rosDevice1 = rosdevice('10.10.10.101','administrator','clearpath');
+        rosDevice1 = rosdevice('192.168.43.79','administrator','clearpath');
     end
     tic
-    getFile(rosDevice,['~/', bagFilename]);
+    getFile(rosDevice1,['~/', bagFilename]);
     toc
     disp('File Received');
 end
