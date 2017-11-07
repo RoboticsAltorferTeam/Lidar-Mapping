@@ -2,6 +2,29 @@
 
 useRings = 0;   %Use only some of the rings (set 1). Use all rings (set 0)
 
+odomTs = timeseries(odomBag);
+veloTs = timeseries(veloBag,'Header.Seq');
+
+[len_odomTs,~] = size(odomTs.Time);
+[len_veloTs,~] = size(veloTs.Time);
+count_veloTs = 1;
+diff_ts1 = 10;
+diff_ts2 = 10;
+index_odom = zeros('double');
+for i = 2:len_odomTs
+    diff_ts1 = abs(veloTs.Time(count_veloTs) - odomTs.Time(i-1));
+    diff_ts2 = abs(veloTs.Time(count_veloTs) - odomTs.Time(i));
+    
+    if(diff_ts1 <= diff_ts2)
+        index_odom(count_veloTs) = i;
+        if(count_veloTs == len_veloTs)
+            break;
+        end
+        count_veloTs = count_veloTs + 1;
+    end
+end
+odomTsSync = getsamples(odomTs,index_odom);
+
 if(~exist('lidarData','var'))
     len1 = numMessages;
 else
@@ -27,7 +50,7 @@ elseif(len1 > len2)
 else
     len = len1;
 end
-len = 2;
+len = 50;
 
 pcGround = cell(1,len);
 lidarDataTemp = cell(1,1);
@@ -36,10 +59,13 @@ timeOdom = zeros(len,1,'double');
 seqLidar = zeros(len,1,'double');
 seqOdom = zeros(len,1,'double');
 for i = 1:len
-    timeOdom(i) = odomData{i}.Header.Stamp.Sec +...
-        (odomData{i}.Header.Stamp.Nsec * 1e-9);
-    seqOdom(i) = odomData{i}.Header.Seq;
-    
+%     odomSample = getdatasamples(ts1,i);
+    odomSample = getdatasamples(odomTsSync,i);
+%     timeOdom(i) = odomData{i}.Header.Stamp.Sec +...
+%         (odomData{i}.Header.Stamp.Nsec * 1e-9);
+%     seqOdom(i) = odomData{i}.Header.Seq;
+    timeOdom(i) = odomSample(2) + odomSample(3) * 1e-9;
+    seqOdom(i) = odomSample(1);
     i
 %     locationNew = [0];
 %     locationCount = 0;
@@ -66,24 +92,21 @@ for i = 1:len
     ringIndices = find(ismember(ring0,{'0','1',}));
     
 %     Get the location Data
-    curPos = [odomData{i}.Pose.Pose.Position.X,...
-        odomData{i}.Pose.Pose.Position.Y,...
-        odomData{i}.Pose.Pose.Position.Z];
-    
+%     curPos = [odomData{i}.Pose.Pose.Position.X,...
+%         odomData{i}.Pose.Pose.Position.Y,...
+%         odomData{i}.Pose.Pose.Position.Z];
+    curPos = [odomSample(4),odomSample(5),odomSample(6)];
     locationData = readXYZ(lidarDataTemp{1});
     if(useRings == 1)
         locationData = locationData(ringIndices,:);
     end
 
-    quat1 = [odomData{i}.Pose.Pose.Orientation.W,...
-        odomData{i}.Pose.Pose.Orientation.X,...
-        odomData{i}.Pose.Pose.Orientation.Y,...
-        odomData{i}.Pose.Pose.Orientation.Z];
-    
+%     quat1 = [odomData{i}.Pose.Pose.Orientation.W,...
+%         odomData{i}.Pose.Pose.Orientation.X,...
+%         odomData{i}.Pose.Pose.Orientation.Y,...
+%         odomData{i}.Pose.Pose.Orientation.Z];
+    quat1 = [odomSample(10),odomSample(7),odomSample(8),odomSample(9)];
     rotm1 = quat2rotm(quat1);
-    if i == 2
-        rotm1  = rotm1 * -1;
-    end
     locationData = locationData * rotm1;
 %     curPos = curPos * rotm1;
 
