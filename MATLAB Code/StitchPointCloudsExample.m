@@ -14,7 +14,12 @@
 %% Register Two Point Clouds
 % dataFile = fullfile(toolboxdir('vision'), 'visiondata', 'livingRoom.mat');
 % load(dataFile);
-livingRoomData = pcObj;
+len5 = length(lidarData);
+livingRoomData = cell(1,len5);
+for i = 1:len5
+    livingRoomData{i} = pointCloud(lidarData{i}.readXYZ,'intensity',lidarData{i}.readField('intensity'));
+end
+% livingRoomData = lidarData;
 % livingRoomData = pcGround;
 % livingRoomData = pcObj(303:352);
 % Extract two consecutive point clouds and use the first point cloud as
@@ -32,7 +37,7 @@ ptCloudCurrent = livingRoomData{2};
 % output point by averaging their X,Y,Z coordinates.
 
 %%
-gridSize = 0.1;
+gridSize = 0.01;
 fixed = pcdownsample(ptCloudRef, 'gridAverage', gridSize);
 moving = pcdownsample(ptCloudCurrent, 'gridAverage', gridSize);
 % fixed = ptCloudRef;

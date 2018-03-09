@@ -1,12 +1,11 @@
 % [~,len] = size(pcObj);
 
-useRings = 0;   %Use only some of the rings (set 1). Use all rings (set 0)
+useRings = 1;   %Use only some of the rings (set 1). Use all rings (set 0)
 lidarHt = 0;
 % lidarZoffset = -0.4017;
 lidarZoffset = -0.406;
 % gridSize = 0.01;
 % odomData = odomFilData;
-% odomFilData = odomData;
 
 if(~exist('lidarData','var'))
     len1 = numMessages;
@@ -14,17 +13,12 @@ else
     [len1,~] = size(lidarData);
 end
 [len2,~] = size(odomData);
-len3 = length(odomFilData);
-len2 = min(len2,len3);
 
 positionAll = zeros(len2,3,'double');
 for i = 1:len2
-%     positionAll(i,:) = [odomData{i}.Pose.Pose.Position.X,...
-%         odomData{i}.Pose.Pose.Position.Y,...
-%         odomData{i}.Pose.Pose.Position.Z];
-    positionAll(i,:) = [odomFilData{i}.Pose.Pose.Position.X,...
-        odomFilData{i}.Pose.Pose.Position.Y,...
-        odomFilData{i}.Pose.Pose.Position.Z];
+    positionAll(i,:) = [odomData{i}.Pose.Pose.Position.X,...
+        odomData{i}.Pose.Pose.Position.Y,...
+        odomData{i}.Pose.Pose.Position.Z];
 end
 
 if(len2 > len1 + 1)
@@ -32,14 +26,13 @@ if(len2 > len1 + 1)
     odomIndex = floor(odomIndex);
     [~,len2] = size(odomIndex);
     odomData = odomData(odomIndex);
-    odomFilData = odomFilData(odomIndex);
     len = min([len1,len2]);
 elseif(len1 > len2)
     len = len2;
 else
     len = len1;
 end
-% len = 200;
+% len = 300;
 
 pcGround = cell(1,len);
 lidarDataTemp = cell(1,1);
@@ -85,6 +78,10 @@ for i = 1:len
     if(useRings == 1)
         locationData = locationData(ringIndices,:);
     end
+    
+    %Incline code
+    locationData(:,3) = locationData(:,3) - lidarZoffset;
+    locationData(:,3) = - locationData(:,3);
 
     quat1 = [odomData{i}.Pose.Pose.Orientation.W,...
         odomData{i}.Pose.Pose.Orientation.X,...
@@ -103,9 +100,9 @@ for i = 1:len
     %     Get the location Data
     curPos = [odomData{i}.Pose.Pose.Position.X,...
             odomData{i}.Pose.Pose.Position.Y,...
-            odomFilData{i}.Pose.Pose.Position.Z];
+            odomData{i}.Pose.Pose.Position.Z];
     
-    if(exist('locationAllR','var') && 1==2)
+    if(exist('locationAllR','var'))
 %         curPos = [odomData{i}.Pose.Pose.Position.X,...
 %             odomData{i}.Pose.Pose.Position.Y, 0];
         checkPoints = 10;
@@ -137,7 +134,7 @@ for i = 1:len
 %         pcIndicesClose = pcIndices(find(pcIndices));
         if(~isempty(locationROI))
             curPos(3) = mean(locationROI(:,3));
-            curPos(3) = curPos(3) - lidarZoffset;
+%             curPos(3) = curPos(3) - lidarZoffset;
             lidarHt = 1
         elseif(lidarHt == 1)
             disp('ERROR');
@@ -145,7 +142,6 @@ for i = 1:len
         end
     end
 
-%     curPos(3) = 0;
     locationDataPos = locationData + curPos;
     locationDataPosR = locationDataR + curPos;
 %     pcGround{i} = select(pcObj{i},ringIndices);
@@ -197,7 +193,7 @@ pcMergedAll = pointCloud(locationAll,'Color',colorDataG);
 pcMergedAllR = pointCloud(locationAllR);
 
 gridSize = 0.1;
-pcMergedAllR = pcdownsample(pcMergedAllR, 'gridAverage', gridSize);
+% pcMergedAllR = pcdownsample(pcMergedAllR, 'gridAverage', gridSize);
 
 figure,pcshow(pcMergedAllR);
 hold on;

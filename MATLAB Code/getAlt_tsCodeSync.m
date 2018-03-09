@@ -50,7 +50,7 @@ elseif(len1 > len2)
 else
     len = len1;
 end
-len = 50;
+len = 250;
 
 pcGround = cell(1,len);
 lidarDataTemp = cell(1,1);
@@ -106,7 +106,11 @@ for i = 1:len
 %         odomData{i}.Pose.Pose.Orientation.Y,...
 %         odomData{i}.Pose.Pose.Orientation.Z];
     quat1 = [odomSample(10),odomSample(7),odomSample(8),odomSample(9)];
-    rotm1 = quat2rotm(quat1);
+    orientEuler = quat2eul(quat1);
+%     orientEuler(2:3) = [0,0];
+    orientEuler(1) = orientEuler(1)*-1;
+%     rotm1 = quat2rotm(quat1);
+    rotm1 = eul2rotm(orientEuler);
     locationData = locationData * rotm1;
 %     curPos = curPos * rotm1;
 
